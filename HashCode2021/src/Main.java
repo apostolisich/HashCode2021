@@ -11,11 +11,11 @@ import java.util.Scanner;
 
 public class Main {
 	
-	private static final String[] INPUT_DATA_SET = { "a.txt" };
+	private static final String[] INPUT_DATA_SET = { "a.txt", "b.txt", "c.txt", "d.txt", "e.txt", "f.txt" };
 	
-	private static final String[] OUTPUT_DATA_SET = { "a_out.txt" };
+	private static final String[] OUTPUT_DATA_SET = { "a_out.txt", "b_out.txt", "c_out.txt", "d_out.txt", "e_out.txt", "f_out.txt" };
 	
-	private static final int DATA_SET_INDEX = 0;
+	private static final int DATA_SET_INDEX = 5;
 	
 	private static final boolean RED = false;
 	private static final boolean GREEN = true;
@@ -41,22 +41,23 @@ public class Main {
 		
 		HashMap<String, Street> streets = getStreets(reader, intersections);
 		
-		ArrayList<Car> cars = getCars(reader);
-		
-		for(int i = 0; i < carCount; i++) {
-			Car currentCar = cars.get(i);
-			String firstStreet = currentCar.getStreetQueue().peek();
-			streets.get(firstStreet).addToCarQueue(currentCar.getId());
-		}
+		ArrayList<Car> cars = getCars(reader, streets);
 		
 		ArrayList<String> activeStreetNames = new ArrayList<String>();
-		for(int j = 0; j < 2; j++) {
-//			turnLightsOn();
-//			moveCars();
-//			updateIntersection();
-//			updateStreet();
+//		for(int j = 0; j < 2; j++) {
+////			turnLightsOn();
+////			moveCars();
+////			updateIntersection();
+////			updateStreet();
+//		}
+		
+		for(int j = 0; j < intersectionCount; j++) {
+			Intersection currentIntersection = intersections[j];
+			currentIntersection.calculateTimer(streets);
 		}
 		
+		
+		printSolution(intersections, streets);
 		reader.close();
 	}
 
@@ -89,7 +90,7 @@ public class Main {
 		}
 	}
 
-	private static ArrayList<Car> getCars(BufferedReader reader) throws IOException {
+	private static ArrayList<Car> getCars(BufferedReader reader, HashMap<String, Street> streets) throws IOException {
 		Scanner lineScanner;
 		ArrayList<Car> cars = new ArrayList<Car>(carCount);
 		for(int j = 0; j < carCount; j++) {
@@ -97,10 +98,14 @@ public class Main {
 			
 			int P = lineScanner.nextInt();
 			Car car = new Car(j, P);
-			for(int k = 0; k < P - 2; k++) {
+			for(int k = 0; k < P; k++) {
 				String streetName = lineScanner.next();
-				car.addToStreetQueue(streetName);
+				streets.get(streetName).increaseCarCounter();
+				car.addToStreetList(streetName);
 			}
+			
+			String street = car.getStreetList().get(car.getStreetList().size() - 1);
+			streets.get(street).decreaseCarCounter();;
 			
 			cars.add(car);
 		}
@@ -108,10 +113,23 @@ public class Main {
 		return cars;
 	}
 	
-	private static void printSolution() throws IOException {
+	private static void printSolution(Intersection[] intersections, HashMap<String, Street> streets) throws IOException {
 		FileWriter writer = new FileWriter(new File(OUTPUT_DATA_SET[DATA_SET_INDEX]));
-		writer.write("...");
-		
+		//TODO calculate used intersections
+		writer.write(intersectionCount + "\n");
+		for(int k = 0; k < intersectionCount; k++) {
+			Intersection currentIntersection = intersections[k];
+			if(currentIntersection.isUnused()) {
+				continue;
+			}
+			writer.write(currentIntersection.getId() + "\n");
+			ArrayList<String> incomingStreets = currentIntersection.getIncomingStreets();
+			writer.write(incomingStreets.size() + "\n");
+			for(String street: incomingStreets) {
+				if(streets.get(street).getLightTimer() != 0 )
+					writer.write(street + " " + streets.get(street).getLightTimer() + "\n");
+			}
+		}
 		writer.close();
 	}
 

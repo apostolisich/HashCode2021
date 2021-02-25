@@ -1,25 +1,55 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 public class Intersection {
 
 	private int id;
-	private HashSet<String> incomingStreets;
+	private ArrayList<String> incomingStreets;
 	private HashSet<String> outgoingStreets;
 	private LinkedHashMap<String, Integer> scheduleMap;
-	private int lightTimer;
+	private boolean unused;
 	
 	public Intersection(int id) {
 		this.id = id;
-		incomingStreets = new HashSet<String>();
+		incomingStreets = new ArrayList<String>();
 		outgoingStreets = new HashSet<String>();
+		unused = false;
 	}
 	
 	public int getId() {
 		return id;
 	}
+	
+	public boolean isUnused() {
+		return unused;
+	}
+	
+	public void calculateTimer(HashMap<String, Street> streets) {
+		int totalCounter = 0;
+		for(String street: incomingStreets) {
+			totalCounter += streets.get(street).getCarCounter();
+		}
+		
+		if(totalCounter == 0) {
+			unused = true;
+			return;
+		}
+		
+		for(int k = 0; k < incomingStreets.size(); k++) {
+			String street = incomingStreets.get(k);
+			int carCounter = streets.get(street).getCarCounter();
+			int timer = (int) Math.ceil((double) carCounter/ (double) totalCounter);
+			if(timer == 0) {
+				incomingStreets.remove(k);
+			} else {
+				streets.get(street).setLightTimer(timer);
+			}
+		}
+	}
 
-	public HashSet<String> getIncomingStreets() {
+	public ArrayList<String> getIncomingStreets() {
 		return incomingStreets;
 	}
 

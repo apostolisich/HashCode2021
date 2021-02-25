@@ -1,29 +1,26 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Car {
 
 	private int id;
-	private Queue<String> streetQueue;
+	private ArrayList<String> streetList;
 	private int totalTimeToDestination;
 	private int numberOfStreets;
 	
 	public Car(int id, int numberOfStreets) {
 		this.id = id;
 		this.numberOfStreets = numberOfStreets;
-		streetQueue = new LinkedList<String>();
+		streetList = new ArrayList<String>();
 	}
 
-	public Queue<String> getStreetQueue() {
-		return streetQueue;
-	}
-
-	public void setStreetQueue(Queue<String> streetQueue) {
-		this.streetQueue = streetQueue;
+	public ArrayList<String> getStreetList() {
+		return streetList;
 	}
 	
-	public void addToStreetQueue(String street) {
-		streetQueue.add(street);
+	public void addToStreetList(String street) {
+		streetList.add(street);
 	}
 
 	public int getTotalTimeToDestination() {
@@ -48,7 +45,7 @@ public class Car {
 
 	@Override
 	public String toString() {
-		return "Car [path=" + streetQueue + ", totalTimeToDestination=" + totalTimeToDestination + ", numberOfStreets="
+		return "Car [path=" + streetList + ", totalTimeToDestination=" + totalTimeToDestination + ", numberOfStreets="
 				+ numberOfStreets + "]";
 	}
 	

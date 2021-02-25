@@ -10,6 +10,8 @@ public class Street implements Comparable<Street> {
 	private int requiredTimeToPassThrough;
 	private int passThroughRate;
 	private Queue<ArrayList<Integer>> carsQueue;
+	private int carCounter;
+	private int lightTimer;
 	
 	public Street(String name, int intersection1, int intersection2, int requiredTimeToPassThrough) {
 		this.name = name;
@@ -17,8 +19,29 @@ public class Street implements Comparable<Street> {
 		this.intersectionOnSecondEnd = intersection2;
 		this.requiredTimeToPassThrough = requiredTimeToPassThrough;
 		carsQueue = new LinkedList<ArrayList<Integer>>();
+		carCounter = 0;
 	}
 
+	public void setLightTimer(int lightTimer) {
+		this.lightTimer = lightTimer;
+	}
+	
+	public int getLightTimer() {
+		return lightTimer;
+	}
+	
+	public void increaseCarCounter() {
+		carCounter++;
+	}
+	
+	public void decreaseCarCounter() {
+		carCounter--;
+	}
+	
+	public int getCarCounter() {
+		return carCounter;
+	}
+	
 	public String getName() {
 		return name;
 	}

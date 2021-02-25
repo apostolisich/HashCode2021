@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -38,28 +39,30 @@ public class Main {
 		
 		Intersection[] intersections = new Intersection[intersectionCount];
 		
-		ArrayList<Street> streets = getStreets(reader, intersections);
+		HashMap<String, Street> streets = getStreets(reader, intersections);
 		
 		ArrayList<Car> cars = getCars(reader);
 		
-		for(int l = 0; l < streetCount; l++) {
-			System.out.println(streets.get(l));
+		for(int i = 0; i < carCount; i++) {
+			Car currentCar = cars.get(i);
+			String firstStreet = currentCar.getStreetQueue().peek();
+			streets.get(firstStreet).addToCarQueue(currentCar.getId());
 		}
 		
-		for(int n = 0; n < carCount; n++) {
-			System.out.println(cars.get(n));
-		}
-		
-		for(int m = 0; m < intersectionCount; m++) {
-			System.out.println(intersections[m]);
+		ArrayList<String> activeStreetNames = new ArrayList<String>();
+		for(int j = 0; j < 2; j++) {
+//			turnLightsOn();
+//			moveCars();
+//			updateIntersection();
+//			updateStreet();
 		}
 		
 		reader.close();
 	}
 
-	private static ArrayList<Street> getStreets(BufferedReader reader, Intersection[] intersections) throws IOException {
+	private static HashMap<String, Street> getStreets(BufferedReader reader, Intersection[] intersections) throws IOException {
 		Scanner lineScanner;
-		ArrayList<Street> streets = new ArrayList<Street>(streetCount);
+		HashMap<String, Street> streets = new HashMap<String, Street>(streetCount);
 		for(int i = 0; i < streetCount; i++) {
 			lineScanner = new Scanner(reader.readLine());
 			
@@ -71,7 +74,7 @@ public class Main {
 			addOrUpdateIntersection(B, intersections, streetName, false);
 			addOrUpdateIntersection(E, intersections, streetName, true);
 			Street street = new Street(streetName, B, E, L);
-			streets.add(street);
+			streets.put(streetName, street);
 		}
 		
 		return streets;
@@ -93,16 +96,12 @@ public class Main {
 			lineScanner = new Scanner(reader.readLine());
 			
 			int P = lineScanner.nextInt();
-			StringBuilder builder = new StringBuilder();
+			Car car = new Car(j, P);
 			for(int k = 0; k < P - 2; k++) {
 				String streetName = lineScanner.next();
-				builder.append(streetName);
-				builder.append(" ");
+				car.addToStreetQueue(streetName);
 			}
-			String streetName = lineScanner.next();
-			builder.append(streetName);
 			
-			Car car = new Car(builder.toString(), P);
 			cars.add(car);
 		}
 		

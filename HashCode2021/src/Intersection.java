@@ -14,7 +14,7 @@ public class Intersection {
 		incomingStreets = new HashSet<String>();
 		outgoingStreets = new HashSet<String>();
 	}
-
+	
 	public int getId() {
 		return id;
 	}

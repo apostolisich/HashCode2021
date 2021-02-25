@@ -1,21 +1,29 @@
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Car {
 
-	private String path;
+	private int id;
+	private Queue<String> streetQueue;
 	private int totalTimeToDestination;
 	private int numberOfStreets;
 	
-	public Car(String path, int numberOfStreets) {
-		this.path = path;
+	public Car(int id, int numberOfStreets) {
+		this.id = id;
 		this.numberOfStreets = numberOfStreets;
+		streetQueue = new LinkedList<String>();
 	}
 
-	public String getPath() {
-		return path;
+	public Queue<String> getStreetQueue() {
+		return streetQueue;
 	}
 
-	public void setPath(String path) {
-		this.path = path;
+	public void setStreetQueue(Queue<String> streetQueue) {
+		this.streetQueue = streetQueue;
+	}
+	
+	public void addToStreetQueue(String street) {
+		streetQueue.add(street);
 	}
 
 	public int getTotalTimeToDestination() {
@@ -34,9 +42,13 @@ public class Car {
 		this.numberOfStreets = numberOfStreets;
 	}
 
+	public int getId() {
+		return id;
+	}
+
 	@Override
 	public String toString() {
-		return "Car [path=" + path + ", totalTimeToDestination=" + totalTimeToDestination + ", numberOfStreets="
+		return "Car [path=" + streetQueue + ", totalTimeToDestination=" + totalTimeToDestination + ", numberOfStreets="
 				+ numberOfStreets + "]";
 	}
 	

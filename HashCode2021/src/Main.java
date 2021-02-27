@@ -4,9 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Scanner;
 
 public class Main {
@@ -16,9 +14,6 @@ public class Main {
 	private static final String[] OUTPUT_DATA_SET = { "a_out.txt", "b_out.txt", "c_out.txt", "d_out.txt", "e_out.txt", "f_out.txt" };
 	
 	private static final int DATA_SET_INDEX = 5;
-	
-	private static final boolean RED = false;
-	private static final boolean GREEN = true;
 	
 	private static int simulationDuration = 0;
 	private static int intersectionCount = 0;
@@ -36,34 +31,35 @@ public class Main {
 		streetCount = lineScanner.nextInt();
 		carCount = lineScanner.nextInt();
 		bonusPoints = lineScanner.nextInt();
+		Intersection.setTotalIntersectionsUsed(intersectionCount);
 		
 		Intersection[] intersections = new Intersection[intersectionCount];
+		HashMap<String, Street> streets = new HashMap<String, Street>(streetCount);
+		fillStreetsAndIntersections(reader, lineScanner, streets, intersections);
 		
-		HashMap<String, Street> streets = getStreets(reader, intersections);
-		
-		ArrayList<Car> cars = getCars(reader, streets);
-		
-		ArrayList<String> activeStreetNames = new ArrayList<String>();
-//		for(int j = 0; j < 2; j++) {
-////			turnLightsOn();
-////			moveCars();
-////			updateIntersection();
-////			updateStreet();
-//		}
+		updateStreetsCarCounters(reader, lineScanner, streets);
 		
 		for(int j = 0; j < intersectionCount; j++) {
 			Intersection currentIntersection = intersections[j];
 			currentIntersection.calculateTimer(streets);
 		}
 		
-		
 		printSolution(intersections, streets);
+		
+		lineScanner.close();
 		reader.close();
 	}
 
-	private static HashMap<String, Street> getStreets(BufferedReader reader, Intersection[] intersections) throws IOException {
-		Scanner lineScanner;
-		HashMap<String, Street> streets = new HashMap<String, Street>(streetCount);
+	/**
+	 * Fills the given streets and intersections structures with the data from the input file.
+	 * 
+	 * @param reader the file reader used to parse the file
+	 * @param lineScanner the scanner that parses of the readers lines
+	 * @param streets a Map containing the streets
+	 * @param intersections an array containing the intersections
+	 * @throws IOException
+	 */
+	private static void fillStreetsAndIntersections(BufferedReader reader, Scanner lineScanner, HashMap<String, Street> streets, Intersection[] intersections) throws IOException {
 		for(int i = 0; i < streetCount; i++) {
 			lineScanner = new Scanner(reader.readLine());
 			
@@ -72,62 +68,71 @@ public class Main {
 			String streetName = lineScanner.next();
 			int L = lineScanner.nextInt();
 			
-			addOrUpdateIntersection(B, intersections, streetName, false);
-			addOrUpdateIntersection(E, intersections, streetName, true);
+			addOrUpdateIntersection(E, intersections, streetName);
 			Street street = new Street(streetName, B, E, L);
 			streets.put(streetName, street);
 		}
-		
-		return streets;
 	}
 	
-	private static void addOrUpdateIntersection(int id, Intersection[] intersections, String streetName, boolean isIncommingStreet) {
+	/**
+	 * Adds an intersection in the array with the given street, or adds the given Street to the
+	 * intersection if it already exists in the array.
+	 * 
+	 * @param id the id of the intersection
+	 * @param intersections the array of the intersections
+	 * @param streetName the name of the Street to be added
+	 * @param isIncommingStreet a boolean indicating if the street is incoming or not
+	 */
+	private static void addOrUpdateIntersection(int id, Intersection[] intersections, String streetName) {
 		if(intersections[id] == null) {
 			intersections[id] = new Intersection(id);
-			intersections[id].addStreet(streetName, isIncommingStreet);
+			intersections[id].addIncomingStreet(streetName);
 		} else {
-			intersections[id].addStreet(streetName, isIncommingStreet);
+			intersections[id].addIncomingStreet(streetName);
 		}
 	}
 
-	private static ArrayList<Car> getCars(BufferedReader reader, HashMap<String, Street> streets) throws IOException {
-		Scanner lineScanner;
-		ArrayList<Car> cars = new ArrayList<Car>(carCount);
+	/**
+	 * Updates the streets by increasing their car counter for each car that needs to pass through
+	 * 
+	 * @param reader the file reader used to parse the file
+	 * @param lineScanner the scanner that parses of the readers lines
+	 * @param streets a Map containing the streets
+	 * @throws IOException
+	 */
+	private static void updateStreetsCarCounters(BufferedReader reader, Scanner lineScanner, HashMap<String, Street> streets) throws IOException {
 		for(int j = 0; j < carCount; j++) {
 			lineScanner = new Scanner(reader.readLine());
 			
 			int P = lineScanner.nextInt();
-			Car car = new Car(j, P);
-			for(int k = 0; k < P; k++) {
+			for(int k = 0; k < P - 1; k++) {
 				String streetName = lineScanner.next();
 				streets.get(streetName).increaseCarCounter();
-				car.addToStreetList(streetName);
 			}
-			
-			String street = car.getStreetList().get(car.getStreetList().size() - 1);
-			streets.get(street).decreaseCarCounter();;
-			
-			cars.add(car);
 		}
-		
-		return cars;
 	}
 	
+	/**
+	 * Prints the solution to the specified output file
+	 * 
+	 * @param intersections the array of intersections
+	 * @param streets the map of the Streets
+	 * @throws IOException
+	 */
 	private static void printSolution(Intersection[] intersections, HashMap<String, Street> streets) throws IOException {
 		FileWriter writer = new FileWriter(new File(OUTPUT_DATA_SET[DATA_SET_INDEX]));
-		//TODO calculate used intersections
-		writer.write(intersectionCount + "\n");
+		writer.write(Intersection.getTotalIntersectionsUsed() + "\n");
 		for(int k = 0; k < intersectionCount; k++) {
 			Intersection currentIntersection = intersections[k];
 			if(currentIntersection.isUnused()) {
 				continue;
 			}
+			
 			writer.write(currentIntersection.getId() + "\n");
 			ArrayList<String> incomingStreets = currentIntersection.getIncomingStreets();
 			writer.write(incomingStreets.size() + "\n");
 			for(String street: incomingStreets) {
-				if(streets.get(street).getLightTimer() != 0 )
-					writer.write(street + " " + streets.get(street).getLightTimer() + "\n");
+				writer.write(street + " " + streets.get(street).getLightTimer() + "\n");
 			}
 		}
 		writer.close();
